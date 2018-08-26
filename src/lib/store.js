@@ -111,7 +111,11 @@ module.exports = (config) => {
     keyword: Sequelize.STRING,
     kind: Sequelize.BOOLEAN
   })
+  const Notifier = sequelize.define('notifier', {
+    notifier: Sequelize.STRING,
+  })
   Feed.hasMany(Filter)
+  Feed.hasMany(Notifier)
 
   debug('Database loaded; synchronizing model')
   return (

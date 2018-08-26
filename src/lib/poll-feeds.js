@@ -23,7 +23,8 @@ const queryFeed = ({updateLatestLink, setBlogTitle}) => feed =>
       setBlogTitle(feed.get('id'), info.blogTitle),
       updateLatestLink(feed.get('id'), info.link)
     ).mapTo(info))
-    .do(({link}) => debug(`New URL: ${link}`))
+    .combineLatest(O.fromPromise(feed.getNotifiers({raw: true, attributes: ['notifier']})))
+    .do(([{link}]) => debug(`New URL: ${link}`))
 
 /* Takes a feed entity and a stream (curried) and checks exctracts all new
  * items from that stream. Then it returns an observable of those items.

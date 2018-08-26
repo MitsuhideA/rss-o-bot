@@ -26,8 +26,11 @@ const poller = state => {
 module.exports = function runRSSOBotDaemon (state) {
   const notify = Notify(state.get('configuration'))
   poller(state)
-    .do(({ blogTitle, link, title }) => { H.log(`New URL in "${blogTitle}": "${link}"`) })
-    .flatMap(({ blogTitle, link, title }) => notify(blogTitle, link, title).retry(2))
+    .do(([{ blogTitle, link, title }]) => { H.log(`New URL in "${blogTitle}": "${link}"`) })
+    .flatMap(([{ blogTitle, link, title }, notifiers]) => {
+      var notifiersArray = notifiers.map(v => v.notifier)
+      return notify(blogTitle, link, title, notifiersArray).retry(2)
+    })
     .do(() => debug('Sent notifications'))
     /* Restart on error */
     .catch(err => {

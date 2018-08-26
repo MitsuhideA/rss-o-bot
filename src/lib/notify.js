@@ -13,11 +13,12 @@ const { throwO } = require('./shared/errors')
 
 module.exports = config => {
   const setMethods = config.get('notification-methods') || []
-  const notifierFunctions = getNotifierFunctions(config, setMethods)
 
-  return (blog, link, title) =>
+  return (blog, link, title, notifiers) => {
+    notifiers = (Array.isArray(notifiers) && notifiers.length > 0) ? notifiers : setMethods;
+    var notifierFunctions = getNotifierFunctions(config, notifiers)
     /* Call all registered notifiers */
-    O.merge(...notifierFunctions)
+    return O.merge(...notifierFunctions)
       .flatMap(f => f(blog, link, title))
       /* The results should be ignored here */
       .toArray()
@@ -26,6 +27,7 @@ module.exports = config => {
           ? throwO('NO_VALID_NOTIFIERS', { setMethods })
           : O.of(true)
       )
+  }
 }
 
 const getNotifierFunctions = (config, setMethods) =>
